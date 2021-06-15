@@ -61,6 +61,27 @@ const commonDeploy = async (req, url: string) => {
     return message;
 };
 
+const publishPlatformEvent = async (req) => {
+    var conn = new jsforce.Connection({
+        instanceUrl : 'https://platformmarketing.my.salesforce.com/',
+        accessToken : '6Cel800D46000000biuI8884p000000MqPXmGoTQ0nyFLrC3GmjbQI6rRcDwuoInUVe94PMLt7gnNZudEbY0BgqXYGrFt9RyA3kUpuTLbMS'
+      });
+      
+
+    const eventData = {
+        Email__c: "req/email_here",
+        RepoURL__c: "req/repo_url_here"
+    };
+
+    conn.sobject('DemoOrgCreated__e').create(eventData, (err, res) => {
+        if (err) {
+            console.error(err);
+        } else {
+            console.log("Event published");
+        }
+    });
+};
+
 app.post(
     '/trial',
     wrapAsync(async (req, res, next) => {
@@ -85,6 +106,9 @@ app.get(
         if (req.query.email === 'required') {
             return res.redirect(multiTemplateURLBuilder(req.query.template, '/#userinfo'));
         }
+
+        console.log(req);
+        await publishPlatformEvent(req);
 
         const message = await commonDeploy(req, '/launch');
         return res.redirect(`/#deploying/deployer/${message.deployId.trim()}`);
