@@ -62,11 +62,15 @@ const commonDeploy = async (req, url: string) => {
 };
 
 const publishPlatformEvent = async (req) => {
-    var conn = new jsforce.Connection({
-        instanceUrl : 'https://platformmarketing.my.salesforce.com/',
-        accessToken : '6Cel800D46000000biuI8884p000000MqPXmGoTQ0nyFLrC3GmjbQI6rRcDwuoInUVe94PMLt7gnNZudEbY0BgqXYGrFt9RyA3kUpuTLbMS'
-      });
-      
+    const oauth = new jsforce.OAuth2({
+        redirectUri: 'http://hosted-scratch-dev.herokuapp.com/token',
+        clientId : '3MVG9i1HRpGLXp.qtGFqaMr8A52dTsKrVVd9SaFOoN6aq310o9bvDkaZ0.uIXjnRFXMqB2SKbb5eQUXYQLolw',
+        clientSecret : '1202EDF576767BD0AFBCE4FAF4F7C009788F58050A96C3E4FCC8336FB767AF2E',
+        loginUrl: 'http://login.salesforce.com'
+    });
+
+    const conn = new jsforce.Connection({ oauth2: oauth });
+    const userinfo = await conn.authorize(req.query.code);
 
     const eventData = {
         Email__c: "req/email_here",
