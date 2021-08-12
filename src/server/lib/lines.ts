@@ -10,6 +10,8 @@ import { exec, exec2JSON, exec2String } from './execProm';
 import { CDS, commandSummary, HerokuResult, ClientResult, ClientError } from './CDS';
 import { loginURL } from './loginURL';
 import { getSummary } from './getSummary';
+import { processWrapper } from './processWrapper';
+import { buildFunctionsJWTAuthCommand } from './hubAuth';
 
 const getDisplayResults = async (path: string, username: string): Promise<SfdxDisplayResult> =>
     (await exec2JSON(`sfdx force:org:display -u ${username} --json`, { cwd: path })).result as SfdxDisplayResult;
@@ -41,6 +43,12 @@ const lineRunner = async (msgJSON: DeployRequest, output: CDS): Promise<CDS> => 
         lines = lines.filter((line) => !line.includes('org:open'));
     }
     logger.debug('starting the line runs');
+
+    // need to auth to functions space from the project folder
+    if (processWrapper.FUNCTIONS_READY) {
+        logger.debug('functions enabled, authenticating to Functions space');
+        await exec(`${await buildFunctionsJWTAuthCommand()}`);
+    }
 
     for (const localLine of lines) {
         logger.debug(`running line-- ${localLine}`);

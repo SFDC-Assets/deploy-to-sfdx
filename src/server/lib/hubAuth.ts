@@ -63,9 +63,8 @@ const auth = async (): Promise<string> => {
         }
 
         await exec(`${await buildJWTAuthCommand()} --setdefaultdevhubusername -a hub --json`);
-        if (processWrapper.FUNCTIONS_READY) {
-            await exec(`${await buildFunctionsJWTAuthCommand()}`);
-        }
+        // former location of Functions auth. Moved to script execution
+        
     } catch (err) {
         logger.error('hubAuth', err);
         // eslint-disable-next-line no-process-exit
