@@ -60,3 +60,6 @@ dist
 
 # specialized tests
 test/integrationTests/generatedRepos
+
+# sfdx folder
+.sfdx
