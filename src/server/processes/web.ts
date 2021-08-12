@@ -64,18 +64,17 @@ const commonDeploy = async (req, url: string) => {
 const publishPlatformEvent = async (req) => {
     const oauth = new jsforce.OAuth2({
         redirectUri: 'http://hosted-scratch-dev.herokuapp.com/token',
-        clientId : '3MVG9i1HRpGLXp.qtGFqaMr8A52dTsKrVVd9SaFOoN6aq310o9bvDkaZ0.uIXjnRFXMqB2SKbb5eQUXYQLolw',
-        clientSecret : '1202EDF576767BD0AFBCE4FAF4F7C009788F58050A96C3E4FCC8336FB767AF2E',
-        loginUrl: 'http://login.salesforce.com'
+        clientId : '3MVG9CEn_O3jvv0zQGZ3RC8AeiFxMIGNhYKtIulLBxFxkVptnBgfEX3W3.gPTXg3vk2FdZRV2Ky1ANU.l8B17',
+        clientSecret : '79CDFBFEFCF697B6E5704EF00A1661C03293D5A344743204CE31A7205FBDCA60',
+        loginUrl: 'http://shanedevhub.lightning.force.com/'
     });
 
     const conn = new jsforce.Connection({ oauth2: oauth });
-    const userinfo = await conn.authorize(req.query.code);
+    // const userinfo = await conn.authorize(req.query.code);
 
     const eventData = {
         Email__c: "req/email_here",
-        RepoURL__c: "req/repo_url_here"
-    };
+     };
 
     conn.sobject('DemoOrgCreated__e').create(eventData, (err, res) => {
         if (err) {
