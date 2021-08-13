@@ -4,6 +4,7 @@ import logger from 'heroku-logger';
 import { isLocal } from './amIlocal';
 import { exec } from './execProm';
 import { processWrapper } from './processWrapper';
+import { execProm, exec2String } from './execProm';
 
 const getKeypath = async (): Promise<string> => {
     if (isLocal()) {
@@ -36,7 +37,21 @@ const buildFunctionsJWTAuthCommand = async (funcusername = processWrapper.HUB_US
         processWrapper.CONSUMERKEY
     } --username ${funcusername} --keyfile ${await getKeypath()}`;
 
-
+const authFunctionsSpace = async (): Promise<string> => {
+    try {
+        const authString = await buildFunctionsJWTAuthCommand(processWrapper.HUB_USERNAME);
+        logger.info(`functions authString ${authString}`);
+        const authProjectResult = await execProm('sfdx force:project:create -n emptyFunctionsAuth --template empty', { cwd: 'tmp' });
+        logger.info(`authProject output ${JSON.stringify(authProjectResult)}`);
+        const result = await exec2String(authString, { cwd: 'tmp/emptyFunctionsAuth' }); 
+        logger.info(`functions auth result -> ${result}`);
+        return result;
+    } catch (err){
+        logger.error('hubAuth:functionsAuth', err);
+        // eslint-disable-next-line no-process-exit
+        process.exit(1);
+    }
+};
 const auth = async (): Promise<string> => {
     // where will our cert live?
     const keypath = await getKeypath();
@@ -66,8 +81,9 @@ const auth = async (): Promise<string> => {
         // former location of Functions auth. Moved to script execution
         // need to auth to functions space from the project folder
         if (processWrapper.FUNCTIONS_READY) {
-            logger.debug('functions enabled, authenticating to Functions space');
-            await exec(`${await buildFunctionsJWTAuthCommand()}`);
+            logger.info('functions enabled, authenticating to Functions space');
+            await authFunctionsSpace();
+            logger.info('functions authenticated');
         }
 
     } catch (err) {
