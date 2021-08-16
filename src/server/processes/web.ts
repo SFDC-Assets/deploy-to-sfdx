@@ -61,6 +61,30 @@ const commonDeploy = async (req, url: string) => {
     return message;
 };
 
+const publishPlatformEvent = async (req) => {
+    const oauth = new jsforce.OAuth2({
+        redirectUri: 'http://hosted-scratch-dev.herokuapp.com/token',
+        clientId : '3MVG9CEn_O3jvv0zQGZ3RC8AeiFxMIGNhYKtIulLBxFxkVptnBgfEX3W3.gPTXg3vk2FdZRV2Ky1ANU.l8B17',
+        clientSecret : '79CDFBFEFCF697B6E5704EF00A1661C03293D5A344743204CE31A7205FBDCA60',
+        loginUrl: 'http://shanedevhub.lightning.force.com/'
+    });
+
+    const conn = new jsforce.Connection({ oauth2: oauth });
+    // const userinfo = await conn.authorize(req.query.code);
+
+    const eventData = {
+        Email__c: "req/email_here",
+     };
+
+    conn.sobject('DemoOrgCreated__e').create(eventData, (err, res) => {
+        if (err) {
+            console.error(err);
+        } else {
+            console.log("Event published");
+        }
+    });
+};
+
 app.post(
     '/trial',
     wrapAsync(async (req, res, next) => {
@@ -85,6 +109,9 @@ app.get(
         if (req.query.email === 'required') {
             return res.redirect(multiTemplateURLBuilder(req.query.template, '/#userinfo'));
         }
+
+        console.log(req);
+        await publishPlatformEvent(req);
 
         const message = await commonDeploy(req, '/launch');
         return res.redirect(`/#deploying/deployer/${message.deployId.trim()}`);
