@@ -1,11 +1,10 @@
 {
   "development": {
     "username": "postgres",
-    "password": null,
+    "password": "postgres",
     "database": "hosted_scratch_local",
     "host": "localhost",
-    "dialect": "postgres",
-    "operatorsAliases": false
+    "dialect": "postgres"
   },
   "test": {
     "username": "postgres",

@@ -2,7 +2,7 @@ import fs from 'fs-extra';
 
 const processWrapper = {
     PORT: process.env.PORT ?? 8443,
-
+    DATABASE_URL: process.env.DATABASE_URL,
     // devhub authentication and plugin config
     LOCAL_ONLY_KEY_PATH: process.env.LOCAL_ONLY_KEY_PATH,
     JWTKEY: process.env.JWTKEY,
