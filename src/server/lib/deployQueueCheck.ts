@@ -23,13 +23,17 @@ const check = async (): Promise<boolean> => {
         msgJSON.visitor.event('Deploy Request', getPoolKey(msgJSON, '-')).send();
     } catch (e) {
         logger.warn('failed to send GA event');
+        logger.debug(e);
     }
 
     // don't use org pools for byoo
     if (!isByoo(msgJSON) && (await pooledOrgFinder(msgJSON))) {
         logger.debug('deployQueueCheck: using a pooled org');
     } else {
-        await build(msgJSON);
+        logger.debug('deployQueueCheck: using a one off org');
+        logger.debug(JSON.stringify(msgJSON));
+        const buildresult = await build(msgJSON);
+        logger.debug(JSON.stringify(buildresult));
     }
 
     return true;

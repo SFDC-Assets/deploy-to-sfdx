@@ -2337,15 +2337,16 @@
   resolved "https://registry.yarnpkg.com/@salesforce-ux/design-system/-/design-system-2.12.2.tgz#f2d393da0d277f4d755b693a3581c6b63c6bc412"
   integrity sha512-a2GiCsNfQD8o+6jEieg+PbFlsbjQGNqgImRr/Xeb13Hea3x+QYwJ1XTbVqSz239GGTOiUScjD7/QN+gb5R4giQ==
 
-"@salesforce/analytics@0.17.0":
-  version "0.17.0"
-  resolved "https://registry.yarnpkg.com/@salesforce/analytics/-/analytics-0.17.0.tgz#37f645f11119e1b2e082788863e4f20cd96c729a"
-  integrity sha512-MhGZb7Vesp1UelogmF9fBQExv2YLgErWVFnQ8/up/XJXMmXmT4wttw86+bkGym4Ges50wHOMPEsghHBiziizyA==
+"@salesforce/analytics@^0.30.0":
+  version "0.30.0"
+  resolved "https://registry.yarnpkg.com/@salesforce/analytics/-/analytics-0.30.0.tgz#064b09a2b30628cd7b7a99d111331ca7b6a5c6af"
+  integrity sha512-aSOlvkgj5oyfHUyY34UXVDQ5/evSgJiR3mBFljL7DvH1VYTSZScdUAqUuwRUZefpnnnC/ONSOi6SI+JPJ5653Q==
   dependencies:
     "@oclif/config" "^1"
     "@salesforce/command" "^2"
     "@salesforce/core" "^2"
     "@salesforce/ts-types" "^1.2.0"
+    moment "^2.24.0"
 
 "@salesforce/bunyan@^2.0.0":
   version "2.0.0"
@@ -16545,10 +16546,10 @@ setprototypeof@1.1.1:
   resolved "https://registry.yarnpkg.com/setprototypeof/-/setprototypeof-1.1.1.tgz#7e95acb24aa92f5885e0abef5ba131330d4ae683"
   integrity sha512-JvdAWfbXeIGaZ9cILp38HntZSFSo3mWg6xGcJJsd+d4aRMOqauag1C63dJfDw7OaMYwEbHMOxEZ1lqVRYP2OAw==
 
-sfdmu@^3.7.19:
-  version "3.7.19"
-  resolved "https://registry.yarnpkg.com/sfdmu/-/sfdmu-3.7.19.tgz#a3d7485449c57418c343df4c2853c467274cfb04"
-  integrity sha512-oRtnGWQ8lfbcE30/tO8gr/TdtjFZTSbL4GulWLdMrt9UVaVt0IcW05guk4S4kSp6fR3sNQdzYuydkLwhdd4v+w==
+sfdmu@^4.4.3:
+  version "4.4.3"
+  resolved "https://registry.yarnpkg.com/sfdmu/-/sfdmu-4.4.3.tgz#98b081ba3584fb93e7072a7c7b5a0548aca9cb0f"
+  integrity sha512-9sOSfLM8jgPHp634kfl/mkheDobosrJ3fHwqVr7Ls2mqIdUqutOEGdBJiiTMx72pOACC/z9EqF9r+whKPNP5vg==
   dependencies:
     "@oclif/command" "^1.8.0"
     "@oclif/config" "^1.17.0"

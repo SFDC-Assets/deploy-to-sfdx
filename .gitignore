@@ -63,3 +63,22 @@ test/integrationTests/generatedRepos
 
 # sfdx folder
 .sfdx
+
+# Node Cached Data
+CachedData/
+Backups/
+CachedExtensions/
+Code\ Cache/
+Crachpad/
+User/
+tmp/
+Cookies
+CrashpadMetrics-active.pma
+Network Persistent State
+QuotaManager
+Cookies-journal
+TransportSecurity
+QuotaManager-journal
+machineid
+languagepacks.json
+.gitignore

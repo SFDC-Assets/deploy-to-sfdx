@@ -10,8 +10,9 @@ const utilities = {
         if (processWrapper.HEROKU_API_KEY && processWrapper.HEROKU_APP_NAME && !isLocal()) {
             exec(`heroku run:detached oneoffbuilder -a ${processWrapper.HEROKU_APP_NAME}`);
         } else if (isLocal()) {
-            logger.debug('run one-off dynos via heroku local');
+            logger.debug('>>run one-off dynos via heroku local');
             exec('heroku local oneoffbuilder');
+            // exec('node --inspect lib/server/processes/deployOneOff.js');
         } else {
             logger.warn('no heroku api key. not running one-off dynos');
         }

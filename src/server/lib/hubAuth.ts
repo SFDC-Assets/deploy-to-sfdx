@@ -2,9 +2,8 @@ import * as fs from 'fs';
 import logger from 'heroku-logger';
 
 import { isLocal } from './amIlocal';
-import { exec } from './execProm';
+import { exec, execProm } from './execProm';
 import { processWrapper } from './processWrapper';
-import { execProm, exec2String } from './execProm';
 
 const getKeypath = async (): Promise<string> => {
     if (isLocal()) {
@@ -41,11 +40,11 @@ const authFunctionsSpace = async (): Promise<string> => {
     try {
         const authString = await buildFunctionsJWTAuthCommand(processWrapper.HUB_USERNAME);
         logger.info(`functions authString ${authString}`);
-        const authProjectResult = await execProm('sfdx force:project:create -n emptyFunctionsAuth --template empty', { cwd: 'tmp' });
+        const authProjectResult = await execProm('sfdx force:project:create -n emptyFunctionsAuth --template empty --json', { cwd: 'tmp' });
         logger.info(`authProject output ${JSON.stringify(authProjectResult)}`);
-        const result = await exec2String(authString, { cwd: 'tmp/emptyFunctionsAuth' }); 
-        logger.info(`functions auth result -> ${result}`);
-        return result;
+        const result = await execProm(authString, { cwd: 'tmp/emptyFunctionsAuth' }); 
+        logger.info(`functions auth result -> ${JSON.stringify(result)}`);
+        return JSON.stringify(result);
     } catch (err){
         logger.error('hubAuth:functionsAuth', err);
         // eslint-disable-next-line no-process-exit
@@ -62,7 +61,7 @@ const auth = async (): Promise<string> => {
             logger.debug('hubAuth: updating plugin');
             await exec('sfdx plugins:link node_modules/shane-sfdx-plugins');
             await exec('sfdx plugins:link node_modules/@salesforce/analytics'); // analytics sfx plugins
-            await exec('sfdx plugins:link node_modules/plugin-functions');
+            await exec('sfdx plugins:link node_modules/@salesforce/plugin-functions');
             await exec('sfdx plugins:link node_modules/@mshanemc/sfdx-migration-automatic');
             await exec('sfdx plugins:link node_modules/sfdmu');
         }
@@ -73,6 +72,7 @@ const auth = async (): Promise<string> => {
             await exec('sfdx plugins:install salesforcedx@pre-release');
         }
 
+
         if (processWrapper.HEROKU_API_KEY) {
             await exec('heroku update');
         }
@@ -82,6 +82,9 @@ const auth = async (): Promise<string> => {
         // need to auth to functions space from the project folder
         if (processWrapper.FUNCTIONS_READY) {
             logger.info('functions enabled, authenticating to Functions space');
+                    // update everything and use a release candidate
+            const logme = await exec('sfdx plugins');
+            logger.info(`sfdx upgrade: ${JSON.stringify(logme)}`);
             await authFunctionsSpace();
             logger.info('functions authenticated');
         }

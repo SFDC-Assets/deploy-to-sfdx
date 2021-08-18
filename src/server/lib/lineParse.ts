@@ -8,11 +8,23 @@ import { argStripper } from './argStripper';
 import { DeployRequest } from './types';
 import { isMultiRepo, isByoo, getPackageDirsFromFile, getArg } from './namedUtilities';
 import { filesToLines } from './fileToLines';
+import * as logger from 'heroku-logger';
+
 
 const jsonify = (line: string): string => {
+    // TODO: remove the sfdx exceptions for functions when I can
+    const regexFuncCLI = /sfdx\s*(env|generate|login|project)/g;
+
     if (line.startsWith('sfdx ')) {
         // TODO: handling for & at the end of line for background runs
-        return `${argStripper(line, '--json', true)} --json`;
+        const cliMatch = line.match(regexFuncCLI);
+        if (Array.isArray(cliMatch) && cliMatch.length) {
+            logger.debug(`found a functions cli match in ${line}`);
+            return `${argStripper(line, '--json', true)}`; // no --json support
+        } else {
+            logger.debug(`did not find a functions cli match in ${line}`);
+            return `${argStripper(line, '--json', true)} --json`;
+        }
     } else {
         return line;
     }
