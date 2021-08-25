@@ -9,9 +9,10 @@
         "noUnusedLocals": true,
         "module": "commonjs",
         "resolveJsonModule": true,
-
+        "allowSyntheticDefaultImports": true,
+        "skipLibCheck": true,
         "removeComments": true,
-        "types": ["node", "jest", "express", "ioredis", "fs-extra", "moment", "request-promise-native", "universal-analytics"]
+        "types": ["node", "objection", "jest", "express", "ioredis", "fs-extra", "moment", "request-promise-native", "universal-analytics"]
     }
     // "compileOnSave": true,
     // "include": ["./src/server/**"],
