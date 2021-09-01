@@ -12,15 +12,20 @@ import { deployMsgBuilder } from '../lib/deployMsgBuilder';
 import { utilities } from '../lib/utilities';
 import { getPoolKey } from '../lib/namedUtilities';
 import { multiTemplateURLBuilder } from '../lib/multiTemplateURLBuilder';
+import Knex from 'knex';
+import knexConfig from '../../../knexfile';
+import { Model } from 'objection';
 
 import { processWrapper } from '../lib/processWrapper';
 
 import { DeployRequest } from '../lib/types';
 import { CDS } from '../lib/CDS';
-
 const app: express.Application = express();
-
 const port = processWrapper.PORT;
+const env = process.env.NODE_ENV || 'development';
+const knex = Knex(knexConfig[env]);
+
+Model.knex(knex);
 
 app.listen(port, () => {
     logger.info(`Example app listening on port ${port}!`);
@@ -31,6 +36,7 @@ app.use(express.static('dist'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors());
+assertDatabaseConnection();
 
 function wrapAsync(fn: any) {
     return function (req, res, next) {
@@ -38,6 +44,12 @@ function wrapAsync(fn: any) {
         // middleware in the chain, in this case the error handler.
         fn(req, res, next).catch(next);
     };
+}
+
+async function assertDatabaseConnection() {
+    console.log('testing db connection');
+    const result = await knex.raw('select 1+1 as result');
+    console.log(result);
 }
 
 const commonDeploy = async (req, url: string) => {
