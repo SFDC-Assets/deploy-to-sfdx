@@ -17,7 +17,6 @@ const utilities = {
         }
     }, 
 
-    
     getPoolDeployerCommand: (): string => {
         if (processWrapper.HEROKU_API_KEY && processWrapper.HEROKU_APP_NAME && !isLocal()) {
             return `heroku run:detached pooldeployer -a ${processWrapper.HEROKU_APP_NAME}`;
