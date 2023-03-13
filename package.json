@@ -38,11 +38,10 @@
     "homepage": "https://github.com/mshanemc/deploy-to-sfdx#readme",
     "dependencies": {
         "@lifeomic/attempt": "^3.0.0",
-        "@mshanemc/lwc-oss-base": "^1.1.1",
         "@mshanemc/sfdx-migration-automatic": "^0.3.1",
         "@salesforce-ux/design-system": "^2.9.3",
-        "@salesforce/analytics": "0.17.0",
-        "@salesforce/kit": "^1.1.1",
+        "@salesforce/analytics": "^1.0.22",
+        "@salesforce/kit": "^1.9.2",
         "cors": "^2.8.5",
         "deepmerge": "^4.2.2",
         "express": "^4.16.4",
@@ -56,7 +55,7 @@
         "moment": "^2.24.0",
         "request-promise-native": "^1.0.7",
         "salesforce-jwt-bearer-token-flow": "^0.2.4",
-        "sfdmu": "^3.7.19",
+        "sfdmu": "^4.26.8",
         "shane-sfdx-plugins": "^4.43.0",
         "strip-color": "^0.1.0",
         "universal-analytics": "^0.4.20"
