@@ -3,7 +3,7 @@
     "description": "An application that will deploy an SFDX project from a public Github repo",
     "repository": "https://github.com/SFDC-Assets/deploy-to-sfdx",
     "keywords": ["deploy", "sfdx", "salesforcedx"],
-    "stack": "heroku-22",
+    "stack": "heroku-20",
     "env": {
         "CONSUMERKEY": {
             "description": "The consumer key for your Connected App.",
