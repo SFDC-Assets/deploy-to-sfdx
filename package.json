@@ -1,130 +1,122 @@
 {
-    "name": "deploy-to-sfdx",
-    "version": "0.0.1",
-    "description": "An application that will deploy an SFDX project from a public  Github repo",
-    "main": "lib/processes/web.js",
-    "scripts": {
-        "build": "yarn build:client && yarn build:server",
-        "build:server": "tsc -b ./src/server",
-        "build:client": "lwc-services build -m production",
-        "heroku:dev:down": "heroku ps:scale web=0 orgbuilder=0 pooldrain=0 -a hosted-scratch-dev",
-        "heroku:dev:up": "heroku ps:scale web=1 orgbuilder=2 -a hosted-scratch-dev",
-        "local": "npm run build && heroku local dynoskimmer=1 && heroku local poolskimmer=1 && heroku local oneoffbuilder=1 && heroku local poolwatcher=1 && heroku local pooldeployer=1 && heroku local orgdeleter=1 && heroku local web=1,orgbuilder=5",
-        "local:web": "yarn build && heroku local web=1,orgbuilder=1",
-        "local:clean": "heroku local orgdeleter=1",
-        "prettier": "prettier --write '**/*.{css,html,js,json,md,yaml,yml}'",
-        "start": "node . --openssl-legacy-provider",
-        "test:generate": "ts-node --project src/server/__tests__/tsconfig.json src/server/__tests__/helpers/repoCodeGen.ts",
-        "test:client": "jest src/client/modules/ -c src/client/jest.config.lwc.js",
-        "test:client:watch": "jest src/client/modules/ -c src/client/jest.config.lwc.js --watch",
-        "test:server": "LOG_LEVEL=WARN jest -c src/server/__tests__/jest.config.unit.js",
-        "test:server:watch": "LOG_LEVEL=WARN jest -c src/server/__tests__/jest.config.unit.js --watch",
-        "test:integration": "redis-cli del poolDeploys; LOG_LEVEL=WARN jest -c src/server/__tests__/jest.config.integration.js",
-        "test:integration:watch": "redis-cli del poolDeploys; LOG_LEVEL=WARN jest -c test/jest.config.integration.js --watch",
-        "test": "test:generate && jest test/integrationTests -c jest.config.integration.js",
-        "watch": "run-p watch:client watch:server",
-        "watch:client": "lwc-services watch",
-        "watch:server": "redis-server --daemonize yes; nodemon"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+ssh://git@github.com/mshanemc/deploy-to-sfdx.git"
-    },
-    "author": "Shane McLaughlin",
-    "license": "Apache-2.0",
-    "bugs": {
-        "url": "https://github.com/mshanemc/deploy-to-sfdx/issues"
-    },
-    "homepage": "https://github.com/mshanemc/deploy-to-sfdx#readme",
-    "dependencies": {
-        "@lifeomic/attempt": "^3.0.0",
-        "@mshanemc/lwc-oss-base": "^1.1.1",
-        "@mshanemc/sfdx-migration-automatic": "^0.3.1",
-        "@salesforce-ux/design-system": "^2.9.3",
-        "@salesforce/analytics": "^1.0.22",
-        "@salesforce/kit": "^1.9.2",
-        "cors": "^2.8.5",
-        "deepmerge": "^4.2.2",
-        "express": "^4.16.4",
-        "fast-deep-equal": "^3.1.1",
-        "fs-extra": "^8.1.0",
-        "heroku-client": "^3.0.7",
-        "heroku-logger": "^0.3.3",
-        "ioredis": "^4.6.2",
-        "jsforce": "^1.9.3",
-        "lodash.isequal": "^4.5.0",
-        "moment": "^2.24.0",
-        "request-promise-native": "^1.0.7",
-        "salesforce-jwt-bearer-token-flow": "^0.2.4",
-        "sfdmu": "^4.26.8",
-        "shane-sfdx-plugins": "^4.43.0",
-        "strip-color": "^0.1.0",
-        "universal-analytics": "^0.4.20"
-    },
-    "devDependencies": {
-        "@babel/core": "^7.3.4",
-        "@babel/preset-env": "^7.3.4",
-        "@salesforce/eslint-config-lwc": "^0.7.0",
-        "@salesforce/wire-service-jest-util": "^2.4.2",
-        "@types/dotenv": "^8.2.0",
-        "@types/express": "^4.16.1",
-        "@types/fs-extra": "^8.0.1",
-        "@types/heroku-logger": "^1.0.0",
-        "@types/ioredis": "^4.0.10",
-        "@types/jest": "^26.0.3",
-        "@types/puppeteer": "^2.0.0",
-        "@types/request": "^2.48.1",
-        "@types/request-promise-native": "^1.0.15",
-        "@types/strip-color": "^0.1.0",
-        "@types/universal-analytics": "^0.4.2",
-        "@typescript-eslint/eslint-plugin": "^2.30.0",
-        "@typescript-eslint/parser": "^2.30.0",
-        "babel-jest": "^24.1.0",
-        "dotenv": "^8.0.0",
-        "eslint": "^7.3.1",
-        "eslint-config-airbnb-typescript": "^7.2.1",
-        "eslint-config-prettier": "^6.11.0",
-        "eslint-plugin-import": "^2.20.2",
-        "eslint-plugin-prettier": "^3.1.0",
-        "husky": "^3.0.7",
-        "jest": "^24.4.0",
-        "jest-puppeteer": "^4.0.0",
-        "lint-staged": "^9.4",
-        "lwc-services": "^2.1.1",
-        "mkdirp": "^0.5.1",
-        "ncp": "^2.0.0",
-        "nodemon": "^2.0.2",
-        "npm-run-all": "^4.1.5",
-        "prettier": "2.0.5",
-        "puppeteer": "^5.2.1",
-        "ts-jest": "^26.0.3",
-        "ts-node": "^8.0.3",
-        "typescript": "^3.8.3"
-    },
-    "husky": {
-        "hooks": {}
-    },
-    "nodemonConfig": {
-        "watch": [
-            "src/server/**/*.ts"
-        ],
-        "ext": "ts, css, html, js",
-        "ignore": [
-            "src/**/*.spec.ts",
-            "src/**/*.test.ts"
-        ],
-        "exec": "yarn build:server && heroku local web=1,orgbuilder=1",
-        "signal": "SIGTERM"
-    },
-    "lint-staged": {
-        "**/*.{css,html,js,json,md,ts,yaml,yml}": [
-            "prettier --write"
-        ],
-        "./src/**/*.ts": [
-            "eslint"
-        ],
-        "*": [
-            "git add"
-        ]
-    }
+  "name": "deploy-to-sfdx",
+  "version": "0.0.1",
+  "description": "An application that will deploy an SFDX project from a public  Github repo",
+  "main": "lib/processes/web.js",
+  "scripts": {
+    "build": "yarn build:client && yarn build:server",
+    "build:server": "tsc -b ./src/server",
+    "build:client": "lwc-services build -m production",
+    "heroku:dev:down": "heroku ps:scale web=0 orgbuilder=0 pooldrain=0 -a hosted-scratch-dev",
+    "heroku:dev:up": "heroku ps:scale web=1 orgbuilder=2 -a hosted-scratch-dev",
+    "local": "npm run build && heroku local dynoskimmer=1 && heroku local poolskimmer=1 && heroku local oneoffbuilder=1 && heroku local poolwatcher=1 && heroku local pooldeployer=1 && heroku local orgdeleter=1 && heroku local web=1,orgbuilder=5",
+    "local:web": "yarn build && heroku local web=1,orgbuilder=1",
+    "local:clean": "heroku local orgdeleter=1",
+    "prettier": "prettier --write '**/*.{css,html,js,json,md,yaml,yml}'",
+    "start": "node . --openssl-legacy-provider",
+    "test:generate": "ts-node --project src/server/__tests__/tsconfig.json src/server/__tests__/helpers/repoCodeGen.ts",
+    "test:client": "jest src/client/modules/ -c src/client/jest.config.lwc.js",
+    "test:client:watch": "jest src/client/modules/ -c src/client/jest.config.lwc.js --watch",
+    "test:server": "LOG_LEVEL=WARN jest -c src/server/__tests__/jest.config.unit.js",
+    "test:server:watch": "LOG_LEVEL=WARN jest -c src/server/__tests__/jest.config.unit.js --watch",
+    "test:integration": "redis-cli del poolDeploys; LOG_LEVEL=WARN jest -c src/server/__tests__/jest.config.integration.js",
+    "test:integration:watch": "redis-cli del poolDeploys; LOG_LEVEL=WARN jest -c test/jest.config.integration.js --watch",
+    "test": "test:generate && jest test/integrationTests -c jest.config.integration.js",
+    "watch": "run-p watch:client watch:server",
+    "watch:client": "lwc-services watch",
+    "watch:server": "redis-server --daemonize yes; nodemon"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/mshanemc/deploy-to-sfdx.git"
+  },
+  "author": "Shane McLaughlin",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/mshanemc/deploy-to-sfdx/issues"
+  },
+  "homepage": "https://github.com/mshanemc/deploy-to-sfdx#readme",
+  "dependencies": {
+    "@lifeomic/attempt": "^3.0.0",
+    "@mshanemc/lwc-oss-base": "^1.1.1",
+    "@mshanemc/sfdx-migration-automatic": "^0.3.1",
+    "@salesforce-ux/design-system": "^2.9.3",
+    "@salesforce/analytics": "^0.4.0",
+    "@salesforce/kit": "^1.9.2",
+    "cors": "^2.8.5",
+    "deepmerge": "^4.2.2",
+    "express": "^4.16.4",
+    "fast-deep-equal": "^3.1.1",
+    "fs-extra": "^8.1.0",
+    "heroku-client": "^3.0.7",
+    "heroku-logger": "^0.0.2",
+    "ioredis": "^4.6.2",
+    "jsforce": "^1.9.3",
+    "lodash.isequal": "^4.5.0",
+    "moment": "^2.24.0",
+    "request-promise-native": "^1.0.7",
+    "salesforce-jwt-bearer-token-flow": "^0.2.4",
+    "sfdmu": "^4.26.8",
+    "shane-sfdx-plugins": "^4.8.2",
+    "strip-color": "^0.1.0",
+    "universal-analytics": "^0.5.3"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.3.4",
+    "@babel/preset-env": "^7.3.4",
+    "@salesforce/wire-service-jest-util": "^2.4.2",
+    "@types/dotenv": "^8.2.0",
+    "@types/express": "^4.16.1",
+    "@types/fs-extra": "^8.0.1",
+    "@types/heroku-logger": "^1.0.0",
+    "@types/ioredis": "^4.0.10",
+    "@types/jest": "^26.0.3",
+    "@types/puppeteer": "^2.0.0",
+    "@types/request": "^2.48.1",
+    "@types/request-promise-native": "^1.0.15",
+    "@types/strip-color": "^0.1.0",
+    "@types/universal-analytics": "^0.4.2",
+    "babel-jest": "^24.1.0",
+    "dotenv": "^8.0.0",
+    "husky": "^3.0.7",
+    "jest": "^29.5.0",
+    "jest-puppeteer": "^4.0.0",
+    "lint-staged": "^9.4",
+    "lwc-services": "^2.1.1",
+    "mkdirp": "^0.5.1",
+    "ncp": "^2.0.0",
+    "nodemon": "^2.0.2",
+    "npm-run-all": "^4.1.5",
+    "prettier": "2.0.5",
+    "puppeteer": "^5.2.1",
+    "ts-jest": "^26.0.3",
+    "ts-node": "^8.0.3",
+    "typescript": "^3.8.3"
+  },
+  "husky": {
+    "hooks": {}
+  },
+  "nodemonConfig": {
+    "watch": [
+      "src/server/**/*.ts"
+    ],
+    "ext": "ts, css, html, js",
+    "ignore": [
+      "src/**/*.spec.ts",
+      "src/**/*.test.ts"
+    ],
+    "exec": "yarn build:server && heroku local web=1,orgbuilder=1",
+    "signal": "SIGTERM"
+  },
+  "lint-staged": {
+    "**/*.{css,html,js,json,md,ts,yaml,yml}": [
+      "prettier --write"
+    ],
+    "./src/**/*.ts": [
+      "eslint"
+    ],
+    "*": [
+      "git add"
+    ]
+  }
 }
