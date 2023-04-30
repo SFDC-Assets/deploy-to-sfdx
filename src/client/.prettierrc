@@ -1,0 +1,11 @@
+{
+  "singleQuote": true,
+  "printWidth": 150,
+
+  "overrides": [
+    {
+      "files": "**/*.html",
+      "options": { "parser": "lwc" }
+    }
+  ]
+}
