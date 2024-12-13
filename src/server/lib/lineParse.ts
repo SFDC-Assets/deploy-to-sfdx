@@ -43,8 +43,8 @@ const securityAssertions = (line: string): string => {
         throw new Error(
             `ERROR: Commands can't contain -u...you can only execute commands against the default project the deployer creates--this is a multitenant sfdx deployer.  Your command: ${line}`
         );
-    }
-    if (line.startsWith('sfdx plugins:')) {
+    }   
+    if (line.startsWith('sfdx ') && line.includes('plugins:')) {
         throw new Error(
             `ERROR: You can't install your own plugins.  See /src/server/lib/hubAuth for currently installed plugins.  Your command: ${line}`
         );
