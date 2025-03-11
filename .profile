@@ -4,6 +4,8 @@ export PATH=$PATH:/app
 echo ".Profile: Updating PATH to include Salesforce CLI ..."
 export PATH=$PATH:/app/.local/share/sfdx/cli/bin/
 
+export SFDX_TOOL=platformdemos
+
 export SF_LAZY_LOAD_MODULES=false
 # do not autoupdate
 export SF_AUTOUPDATE_DISABLE=true
