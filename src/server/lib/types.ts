@@ -51,10 +51,10 @@ export interface PoolConfigDeprecated extends PoolConfig {
 }
 
 export interface SfdxDisplayResult {
-    username: string;
-    id: string;
-    instanceUrl?: string;
-    expirationDate?: Date;
+    SignupUsername: string;
+    Id: string;
+    LoginUrl?: string;
+    ExpirationDate?: Date;
 }
 
 // result of force:org:open --json

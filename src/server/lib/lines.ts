@@ -10,9 +10,11 @@ import { exec, exec2JSON, exec2String } from './execProm';
 import { CDS, commandSummary, HerokuResult, ClientResult, ClientError } from './CDS';
 import { loginURL } from './loginURL';
 import { getSummary } from './getSummary';
+import { processWrapper } from './processWrapper';
 
 const getDisplayResults = async (path: string, username: string): Promise<SfdxDisplayResult> =>
-    (await exec2JSON(`sfdx force:org:display -u ${username} --json`, { cwd: path })).result as SfdxDisplayResult;
+    (await exec2JSON(`sf data get record --sobject ScratchOrgInfo --where "SIGNUPUSERNAME=${username}" --json -o ${processWrapper.HUB_USERNAME}`, { cwd: path })).result as SfdxDisplayResult;
+    // (await exec2JSON(`sfdx force:org:display -u ${username} --json`, { cwd: path })).result as SfdxDisplayResult;
 
 const lineRunner = async (msgJSON: DeployRequest, output: CDS): Promise<CDS> => {
     // get the lines we'll run
@@ -165,8 +167,8 @@ const lineRunner = async (msgJSON: DeployRequest, output: CDS): Promise<CDS> => 
         const displayResults = await getDisplayResults(`tmp/${msgJSON.deployId}`, output.mainUser.username);
         output = {
             ...output,
-            instanceUrl: displayResults.instanceUrl,
-            expirationDate: displayResults.expirationDate
+            instanceUrl: displayResults.LoginUrl,
+            expirationDate: displayResults.ExpirationDate
         };
         await Promise.all([cdsPublish(output), exec('sfdx force:auth:logout -p', { cwd: `tmp/${msgJSON.deployId}` })]);
     } else {

@@ -1,7 +1,7 @@
 /* eslint-disable no-await-in-loop */
 import * as fs from 'fs-extra';
 
-// import logger from 'heroku-logger';
+import logger from 'heroku-logger';
 
 import { shellSanitize } from './shellSanitize';
 import { argStripper } from './argStripper';
@@ -10,7 +10,7 @@ import { isMultiRepo, isByoo, getPackageDirsFromFile, getArg } from './namedUtil
 import { filesToLines } from './fileToLines';
 
 const jsonify = (line: string): string => {
-    if (line.startsWith('sfdx ')) {
+    if (line.startsWith('sfdx ') || line.startsWith('sf ')) {
         // TODO: handling for & at the end of line for background runs
         return `${argStripper(line, '--json', true)} --json`;
     } else {
@@ -19,34 +19,55 @@ const jsonify = (line: string): string => {
 };
 
 const byooFilter = (line: string): boolean => {
-    if (line.includes('org:create')) {
+    if (line.includes('org:create') || line.includes('org create')) {
         return false;
     }
-    if (line.includes('user:password')) {
+    if (line.includes('user:password') || line.includes('user password')) {
         return false;
     }
     return true;
 };
 
 const securityAssertions = (line: string): string => {
+     logger.debug(`OJIBOWA1 ${line}`);
+    
     if (!shellSanitize(line)) {
         throw new Error(
             `ERROR: Commands with metacharacters cannot be executed.  Put each command on a separate line.  Your command: ${line}`
         );
     }
-    if (!line.startsWith('sfdx ')) {
+
+    if (!(line.startsWith('sfdx ') || line.startsWith('sf '))) {
         throw new Error(
-            `ERROR: Commands must start with sfdx or be comments (security, yo!).  Your command: ${line}`
+            `ERROR: Commands must start with sfdx, sf or be comments (security, yo!).  Your command: ${line}`
         );
     }
     if (line.includes(' -u ') || line.includes(' --targetusername ')) {
         throw new Error(
             `ERROR: Commands can't contain -u...you can only execute commands against the default project the deployer creates--this is a multitenant sfdx deployer.  Your command: ${line}`
         );
-    }   
-    if (line.startsWith('sfdx ') && line.includes('plugins:')) {
+    }
+
+    if (line.includes('plugins')) {
         throw new Error(
-            `ERROR: You can't install your own plugins.  See /src/server/lib/hubAuth for currently installed plugins.  Your command: ${line}`
+            `ERROR: You can't install your own plugins. Your command: ${line}`
+        );
+    }
+
+    if (line.includes('list')) {
+        logger.debug(`OJIBOWA2 ${line}`);
+        throw new Error(
+            `ERROR: You can't list our orgs, shapes or snapshots. Your command: ${line}`
+        );
+    }
+
+    const shaneRegex = /file\s+upload/;
+    const standardRegex = /create\s+file/;
+
+    if (line.includes('file:upload') || line.includes('create:file') || shaneRegex.test(line) || standardRegex.test(line) ) {
+        logger.debug(`OJIBOWA1 ${line}`);
+        throw new Error(
+            `ERROR: You can't upload files. Your command: ${line}`
         );
     }
 
@@ -56,10 +77,10 @@ const securityAssertions = (line: string): string => {
 // corrections and improvements for individual commands, always runs
 const lineCorrections = (line: string, msgJSON: DeployRequest): string => {
     // we ALWAYS want -r instead of real open on our server
-    if (line.includes('sfdx force:org:open') && !line.includes(' -r')) {
+    if ((line.includes('sfdx force:org:open') || line.includes('sf org open')) && !line.includes(' -r')) {
         return `${line} -r`;
     }
-    if (line.includes(':org:create')) {
+    if (line.includes(':org:create') || line.includes('org create')) {
         // console.log(`line reached corrections for create:  it is ${line}`);
         // handle the shane plugin and the stock commmand
         // no aliases allowed to keep the deployer from getting confused between deployments
@@ -70,19 +91,28 @@ const lineCorrections = (line: string, msgJSON: DeployRequest): string => {
         line = argStripper(line, '-v');
         return line;
     }
-    if (isByoo(msgJSON) && line.includes('sfdx force:user:permset:assign')) {
+    if (isByoo(msgJSON) && (line.includes('sfdx force:user:permset:assign') || line.includes('sf org assign permset'))) {
         // the username on byoo deploys is a accesstoken, which confuses the standard permset assign command
         return line.replace('force:user', 'shane:user');
     }
-    if (line.includes('sfdx automig:load')) {
-        // if the script didn't supply the concise line, make sure it's there.
-        return `${argStripper(line, '--concise', true)} --concise`;
-    }
-    if (isByoo(msgJSON) && line.includes('sfdx force:source:push')) {
+    // if (line.includes('sfdx automig:load') || line.includes('sf automig load')) {
+    //     // if the script didn't supply the concise line, make sure it's there.
+    //     return `${argStripper(line, '--concise', true)} --concise`;
+    // }
+    if (isByoo(msgJSON) && (line.includes('sfdx force:source:push') || line.includes('sf project deploy start'))) {
         const project = fs.readJSONSync(`tmp/${msgJSON.deployId}/sfdx-project.json`);
         // byoo might not be a scratch org, so we'll deploy it using deploy instead of push, referencing the project directories
         return line.replace(
             'sfdx force:source:push',
+            `sfdx force:source:deploy -p ${getPackageDirsFromFile(project)}`
+        );
+    }
+
+    if (isByoo(msgJSON) && line.includes('sf project deploy start')) {
+        const project = fs.readJSONSync(`tmp/${msgJSON.deployId}/sfdx-project.json`);
+        // byoo might not be a scratch org, so we'll deploy it using deploy instead of push, referencing the project directories
+        return line.replace(
+            'sf project deploy start',
             `sfdx force:source:deploy -p ${getPackageDirsFromFile(project)}`
         );
     }
@@ -106,11 +136,11 @@ const thereCanBeOnlyOne = (lines: string[], textSoSearchFor: string) => {
 
 const multiOrgCorrections = (lines: string[]): string[] =>
     // only one password allowed for (multi org).  [BYOO will have them already removed at this stage]
-    thereCanBeOnlyOne(lines, 'user:password');
+    thereCanBeOnlyOne(lines, 'user password');
 const getMaxDays = (lines: string[]): number =>
     Math.max(
         ...lines
-            .filter((line) => line.includes('org:create'))
+            .filter((line) => (line.includes('org:create') || line.includes('org create')))
             .map(
                 (line) =>
                     parseInt(getArg(line, '-d'), 10) || parseInt(getArg(line, '--days'), 10) || 7
@@ -137,17 +167,17 @@ const lineParse = async (msgJSON: DeployRequest): Promise<string[]> => {
     if (isByoo(msgJSON)) {
         // special auth scenario for byoo user
         parsedLines.unshift(
-            `sfdx force:config:set defaultdevhubusername= defaultusername='${msgJSON.byoo.accessToken}' instanceUrl='${msgJSON.byoo.instanceUrl}' --json`
+            `sf config set defaultdevhubusername= defaultusername='${msgJSON.byoo.accessToken}' instanceUrl='${msgJSON.byoo.instanceUrl}' --json`
         );
     }
 
     if (!isByoo(msgJSON) && isMultiRepo(msgJSON)) {
         // remove all the creates and put it at the beginning
         parsedLines = [
-            `sfdx force:org:create -f config/project-scratch-def.json -d ${getMaxDays(
+            `sf org create scratch -f config/project-scratch-def.json -d ${getMaxDays(
                 parsedLines
             )} -s --json`,
-            ...parsedLines.filter((line) => !line.includes('org:create'))
+            ...parsedLines.filter((line) => !line.includes('org create'))
         ];
     }
 

@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import logger from 'heroku-logger';
 import { exec, ExecOptions } from 'child_process';
 import stripColor from 'strip-color';
 import * as util from 'util';
 
 const execProm = util.promisify(exec);
-const maxBuffer = 1024 * 3000;
+const maxBuffer = 1024 * 100000;
 
 // tslint:disable-next-line: no-any
 const exec2JSON = async (cmd: string, options?: ExecOptions): Promise<any> => {
@@ -21,6 +22,7 @@ const exec2JSON = async (cmd: string, options?: ExecOptions): Promise<any> => {
 const exec2String = async (cmd: string, options?: ExecOptions): Promise<any> => {
     try {
         const results = await execProm(cmd, { maxBuffer, ...options });
+        logger.debug(`ojibowa results-- ${results.stdout}`);
         return results.stdout;
     } catch (err) {
         // console.log(err);
