@@ -28,9 +28,7 @@ const byooFilter = (line: string): boolean => {
     return true;
 };
 
-const securityAssertions = (line: string): string => {
-     logger.debug(`OJIBOWA1 ${line}`);
-    
+const securityAssertions = (line: string): string => {    
     if (!shellSanitize(line)) {
         throw new Error(
             `ERROR: Commands with metacharacters cannot be executed.  Put each command on a separate line.  Your command: ${line}`
@@ -42,6 +40,7 @@ const securityAssertions = (line: string): string => {
             `ERROR: Commands must start with sfdx, sf or be comments (security, yo!).  Your command: ${line}`
         );
     }
+    
     if (line.includes(' -u ') || line.includes(' --targetusername ')) {
         throw new Error(
             `ERROR: Commands can't contain -u...you can only execute commands against the default project the deployer creates--this is a multitenant sfdx deployer.  Your command: ${line}`
@@ -54,10 +53,9 @@ const securityAssertions = (line: string): string => {
         );
     }
 
-    if (line.includes('list')) {
-        logger.debug(`OJIBOWA2 ${line}`);
+    if (line.includes('list') || line.includes('display')) {
         throw new Error(
-            `ERROR: You can't list our orgs, shapes or snapshots. Your command: ${line}`
+            `ERROR: You can't list or display our orgs, shapes or snapshots. Your command: ${line}`
         );
     }
 
@@ -65,7 +63,6 @@ const securityAssertions = (line: string): string => {
     const standardRegex = /create\s+file/;
 
     if (line.includes('file:upload') || line.includes('create:file') || shaneRegex.test(line) || standardRegex.test(line) ) {
-        logger.debug(`OJIBOWA1 ${line}`);
         throw new Error(
             `ERROR: You can't upload files. Your command: ${line}`
         );
