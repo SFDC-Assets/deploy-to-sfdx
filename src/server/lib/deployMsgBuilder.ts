@@ -48,6 +48,12 @@ const deployMsgBuilder = async (req): Promise<DeployRequest> => {
         })
     );
 
+    for(const repo of repos) {
+        if (!repo.whitelisted) {
+            throw new Error(`repo ${repo.username}/${repo.repo} is not whitelisted`);
+        }
+    }
+
     const message: DeployRequest = {
         deployId: getDeployId(repos[0].username, repos[0].repo),
         createdTimestamp: new Date(),
